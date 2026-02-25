@@ -1,14 +1,3 @@
-"""
-5억건 데이터 증강 — OOM 방어 및 작업 완료 후 멈춤(Hanging) 완벽 해결
-══════════════════════════════════════════════════════════
-[수정 내용]
- 1. 청크 분할(Chunking): Zipf 가중치가 1000배가 넘더라도, 한 번에 10배수씩만 메모리에 올림.
- 2. 미니 PC 최적화: 4코어 16GB 환경에 맞춰 MAX_WORKERS=2, MEM_PAUSE_PCT=75 설정.
- 3. 강제 즉시 종료 (os._exit): 
-    - 작업이 100% 완료되면 ProcessPoolExecutor의 무한 대기 버그를 무시하고 즉시 터미널로 복귀.
-    - Ctrl+C 입력 시 진행 중인 자식 프로세스들을 psutil로 강제 사살하고 즉시 튕겨 나옴.
-"""
-
 import os, sys, gc, time, logging, signal, atexit, random, traceback
 import concurrent.futures
 from multiprocessing import shared_memory
@@ -25,7 +14,7 @@ import psutil
 DATASET_DIR      = 'downloads/olist'
 DST_DIR          = 'downloads/olist_augmented'
 
-TARGET_SCALE     = 5000
+TARGET_SCALE     = 2500
 MAX_WORKERS      = 3    # 16GB 메모리 보호 및 컨텍스트 스위칭 최소화
 BATCH_SIZE       = 50   # 큐에 과도하게 쌓이는 것 방지
 MAX_QUEUE_DEPTH  = 4    # MAX_WORKERS * 2
