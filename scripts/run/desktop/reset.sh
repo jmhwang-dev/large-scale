@@ -1,0 +1,1 @@
+sudo bash ./scripts/run/desktop/down.sh

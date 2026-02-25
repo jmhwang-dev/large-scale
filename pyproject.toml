@@ -1,0 +1,38 @@
+[project]
+name = "large-scale"
+version = "0.1.0"
+description = ""
+authors = [
+    {name = "jmhwang-dev",email = "jungmin.hwang.dev@gmail.com"}
+]
+readme = "README.md"
+requires-python = ">=3.11.0,<3.12.0"
+dependencies = [
+    "pandas (>=2.3.0,<3.0.0)",
+    "kaggle (>=1.7.4.5,<2.0.0.0)",
+    "pyyaml (>=6.0.2,<7.0.0)",
+    "ipykernel (>=6.29.5,<7.0.0)",
+    "seaborn (>=0.13.2,<0.14.0)",
+    "notebook (>=7.4.4,<8.0.0)",
+    "pydantic (>=2.11.0,<3.0.0)",
+    "boto3 (>=1.40.3,<2.0.0)",
+    "python-dotenv (>=1.1.1,<2.0.0)",
+    "pyyml (>=0.0.2,<0.0.3)",
+    "pyiceberg (==0.8.1)",
+    "pyarrow (>=21.0.0,<22.0.0)",
+]
+
+[build-system]
+requires = ["poetry-core>=2.0.0,<3.0.0"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.poetry]
+packages = [
+  { include = "service", from = "src" }
+]
+
+[tool.poetry.group.dev.dependencies]
+ipykernel = "^6.29.5"
+pytest = "^8.4.1"
+pyspark = "^3.5"
+notebook = "^7.4.4"

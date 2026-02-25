@@ -1,0 +1,53 @@
+x-spark-common: &spark-common
+  image: ghcr.io/jmhwang-dev/warehouse:sp3.5.6-ice1.9.1
+  
+services:
+  spark-master-batch:
+    <<: *spark-common
+    container_name: spark-master-batch
+
+    network_mode: host
+    environment:
+      - SPARK_NO_DAEMONIZE=${SPARK_NO_DAEMONIZE}
+      - SPARK_MASTER_HOST=${SPARK_MASTER_HOST}
+      - SPARK_MASTER_PORT=${SPARK_MASTER_PORT}
+      - SPARK_MASTER_WEBUI_PORT=${SPARK_MASTER_WEBUI_PORT}
+      
+    volumes:
+      - ./configs/spark:/opt/spark/conf
+    command: /opt/spark/bin/spark-class org.apache.spark.deploy.master.Master
+    depends_on:
+      - spark-history
+
+  spark-history:
+    <<: *spark-common
+    container_name: spark-history
+    restart: unless-stopped
+    
+    ports:
+      - "18080:18080"
+
+    environment:
+      SPARK_NO_DAEMONIZE: "true"
+      SPARK_HISTORY_OPTS: "-Dspark.history.ui.port=18080"
+      # 워커와 직접 통신하지 않으므로 Public DNS 불필요. S3(MinIO) 연결 설정 중요.
+      
+    volumes:
+      - ./configs/spark:/opt/spark/conf
+    command: /opt/spark/bin/spark-class org.apache.spark.deploy.history.HistoryServer
+
+  init-spark:
+    <<: *spark-common
+    container_name: init-spark
+    depends_on:
+      - spark-master-batch
+    volumes:
+      - ./configs/spark:/opt/spark/conf
+    entrypoint:
+      - bash
+      - -c
+      - |
+        echo 'Waiting for cluster stability...'
+        sleep 10
+        echo 'Initializing Iceberg Namespace...'
+        /opt/spark/bin/spark-sql --master "local[*]" -e "CREATE NAMESPACE IF NOT EXISTS warehousedev.default;"

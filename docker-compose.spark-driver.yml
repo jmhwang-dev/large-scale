@@ -1,0 +1,34 @@
+x-spark-common: &spark-common
+  image: ghcr.io/jmhwang-dev/warehouse:sp3.5.6-ice1.9.1
+
+services:
+  spark-client:
+    <<: *spark-common
+    container_name: spark-client
+
+    network_mode: host
+    environment:
+      - PYTHONPATH=/mnt/src
+      - SPARK_LOCAL_IP=${SPARK_LOCAL_IP}
+      - SPARK_MASTER_HOST=${SPARK_MASTER_HOST}
+      - SPARK_MASTER_PORT=${SPARK_MASTER_PORT}
+      - SPARK_NO_DAEMONIZE=${SPARK_NO_DAEMONIZE}
+      - SPARK_DRIVER_PORT=${SPARK_DRIVER_PORT}
+      - SPARK_DRIVER_BLOCK_MANAGER_PORT=${SPARK_DRIVER_BLOCK_MANAGER_PORT}
+      - SPARK_DRIVER_WEBUI_PORT=${SPARK_DRIVER_WEBUI_PORT}
+      
+    # mem_limit: 5g
+    # cpus: 6.0
+
+    command: tail -f /dev/null
+    volumes:
+      - ./configs/spark:/opt/spark/conf
+      - ./configs/kafka:/configs/kafka:ro
+      - ./notebooks/spark:/opt/spark/work-dir
+      - ./jobs/:/jobs/
+      - ./src/:/mnt/src
+      - ./logs/spark/:/opt/spark/logs/
+      - ./infra/shared:/mnt/shared/
+      - ./configs/jmx/spark_driver.yml:/mnt/configs/jmx/spark_driver.yml
+
+    working_dir: /
